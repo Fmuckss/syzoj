@@ -25,9 +25,8 @@ if not os.path.isdir(_TESTDATA_DIR):
 def compile_src(source, des, lang):
     source_file = ""
     cmd = ""
+    delcmd = "rm tmp_exe"
     exe_file = des
-
-    puts("submitted. language = " + lang)
 
     if lang == "GNU C++98":
         source_file = des + "_tmp.cpp"
@@ -44,7 +43,8 @@ def compile_src(source, des, lang):
         source_file = des + "_tmp.rb"
     elif lang == "Haskell GHC7": 
         source_file = des + "_tmp.hs"
-        cmd = "ghc " + source_file
+        cmd = "ghc " + source_file + " -o tmp_exe"
+        delcmd = "rm tmp_exe & rm *.o & rm *.hi"
 
     with codecs.open(source_file, "w", "utf-8") as f:
         f.write(source)
@@ -52,10 +52,11 @@ def compile_src(source, des, lang):
     if os.path.isfile(des):
         os.remove(des)
     os.system(cmd)
+
     os.remove(source_file)
 
     if os.path.isfile(des):
-        return True
+        return delcmd
     else:
         return False
 
@@ -202,12 +203,16 @@ def run(exe_file, std_in, std_out, time_limit, memory_limit):
 
 
 def judge(source, time_limit, memory_limit, testdata, lang):
+    print 1
     result = {"status": "Judging", "score": 0, "total_time": 0, "max_memory": 0, "case_num": 0}
+    
+    print lang
 
     testdata_dir = get_testdata_dir(testdata)
     exe_file = "tmp_exe"
 
-    if not compile_src(source, exe_file, lang):
+    ok = compile_src(source, exe_file, lang)
+    if not ok:
         result["status"] = "Compile Error"
         return result
 
@@ -239,6 +244,9 @@ def judge(source, time_limit, memory_limit, testdata, lang):
     result["score"] = int(result["score"] + 0.1)
     if result["status"] == "Judging":
         result["status"] = "Accepted"
+
+    os.system(ok)
+
     return result
 
 
@@ -250,7 +258,7 @@ def main():
             continue
 
         try:
-            result = judge(task["code"], task["language"], task["time_limit"], task["memory_limit"], task["testdata"])
+            result = judge(task["code"], task["time_limit"], task["memory_limit"], task["testdata"], task["language"])
         except:
             result = {"status": "System Error", "score": 0, "total_time": 0, "max_memory": 0, "case_num": 0}
 
