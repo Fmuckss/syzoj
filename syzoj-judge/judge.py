@@ -22,16 +22,36 @@ if not os.path.isdir(_TESTDATA_DIR):
     os.mkdir(_TESTDATA_DIR)
 
 
-def compile_src(source, des):
-    source_file = des + "_tmp.cpp"
+def compile_src(source, des, lang):
+    source_file = ""
+    cmd = ""
     exe_file = des
+
+    puts("submitted. language = " + lang)
+
+    if lang == "GNU C++98":
+        source_file = des + "_tmp.cpp"
+        cmd = "g++ " + source_file + " -O2 -o " + exe_file + " -lm -lpthread -DONLINE_JUDGE" 
+    elif lang == "GNU C++11":
+        source_file = des + "_tmp.cpp"
+        cmd = "g++ " + source_file + " -std=c++11 -O2 -o " + exe_file + " -lm -lpthread -DONLINE_JUDGE"
+    elif lang == "GNU GCC":
+        source_file = des + "_tmp.c"
+        cmd = "gcc " + source_file + " -O2 -o " + exe_file + " -lm -lpthread -DONLINE_JUDGE"
+    elif lang == "Python3":
+        source_file = des + "_tmp.py"
+    elif lang == "Ruby2.3":
+        source_file = des + "_tmp.rb"
+    elif lang == "Haskell GHC7": 
+        source_file = des + "_tmp.hs"
+        cmd = "ghc " + source_file
 
     with codecs.open(source_file, "w", "utf-8") as f:
         f.write(source)
-
+    
     if os.path.isfile(des):
         os.remove(des)
-    os.system("g++ " + source_file + " -o " + exe_file + " -lm -DONLINE_JUDGE")
+    os.system(cmd)
     os.remove(source_file)
 
     if os.path.isfile(des):
@@ -181,13 +201,13 @@ def run(exe_file, std_in, std_out, time_limit, memory_limit):
     return result
 
 
-def judge(source, time_limit, memory_limit, testdata):
+def judge(source, time_limit, memory_limit, testdata, lang):
     result = {"status": "Judging", "score": 0, "total_time": 0, "max_memory": 0, "case_num": 0}
 
     testdata_dir = get_testdata_dir(testdata)
     exe_file = "tmp_exe"
 
-    if not compile_src(source, exe_file):
+    if not compile_src(source, exe_file, lang):
         result["status"] = "Compile Error"
         return result
 
@@ -230,7 +250,7 @@ def main():
             continue
 
         try:
-            result = judge(task["code"], task["time_limit"], task["memory_limit"], task["testdata"])
+            result = judge(task["code"], task["language"], task["time_limit"], task["memory_limit"], task["testdata"])
         except:
             result = {"status": "System Error", "score": 0, "total_time": 0, "max_memory": 0, "case_num": 0}
 

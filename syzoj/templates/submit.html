@@ -6,8 +6,13 @@
 	    <form class="am-form" action="{{url_for('submit_code',problem_id=problem.id)}}" method="post">
 		    <div class="am-form-group">
 		      <label for="doc-select-1">选择语言</label>
-		      <select id="doc-select-1">
-		      		<option value="option1">C++</option>
+		      <select id="doc-select-1" name="language">
+		      		<option value="option1">GNU C++98</option>
+                                <option value="option2">GNU C++11</option>
+                                <option value="option3">GNU GCC</option>
+                                <option value="option4">Python3</option>
+                                <option value="option5">Runy2.3</option>
+                                <option value="option6">Haskell GHC7</option>
 		      </select>
 		      <span class="am-form-caret"></span>
 		    </div>
